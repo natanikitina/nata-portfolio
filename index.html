@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nata Nikitina — фотограф</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root { color-scheme: light; --paper: #fff; --ink: #171717; --muted: #656565; }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; background: var(--paper); color: var(--ink); font-family: Manrope, Arial, Helvetica, sans-serif; }
+    a { color: inherit; } button { font: inherit; } [hidden] { display: none !important; }
+    .language-switch { position: absolute; top: 23px; right: clamp(18px, 3vw, 42px); display: flex; align-items: center; gap: 6px; z-index: 4; font-size: 12px; letter-spacing: .08em; }
+    .language-switch button { padding: 5px 3px; border: 0; background: transparent; color: #888; cursor: pointer; }
+    .language-switch button[aria-pressed="true"] { color: #171717; text-decoration: underline; text-underline-offset: 4px; }
+    .header { width: min(700px, 100%); margin: 0 auto; padding: clamp(45px, 4vw, 100px) 20px 0; text-align: center; }
+    .brand { display: block; width: fit-content; margin: 0 auto; text-decoration: none; }
+    .avatar { display: none; }
+    h1 { margin: 0; font-family: Manrope, Arial, sans-serif; font-weight: 400; font-size: clamp(27px, 4vw, 42px); letter-spacing: 0; line-height: 1.1; }
+    nav { display: flex; justify-content: center; gap: clamp(25px, 4vw, 40px); margin-top: 17px; flex-wrap: wrap; }
+    nav a { text-decoration: none; color: var(--muted); font-size: clamp(15px, .72vw, 18px); }
+    nav a:hover, nav a[aria-current="page"] { color: #111; }
+    a:focus-visible, button:focus-visible, .gallery:focus-visible { outline: 2px solid #444; outline-offset: 4px; }
+    main { flex: 1 0 auto; width: 100%; min-width: 0; }
+    #portfolio-view { width: 100%; min-width: 0; }
+    .gallery-wrap { position: relative; width: 100%; min-width: 0; margin: clamp(30px, 2.1vw, 54px) 0 0; }
+    .gallery { width: 100%; min-width: 0; display: flex; gap: clamp(10px, .8vw, 20px); padding: 0 clamp(16px, 1.3vw, 33px); overflow-x: auto; overscroll-behavior-inline: contain; scroll-behavior: smooth; scroll-snap-type: x proximity; scrollbar-width: none; }
+    .gallery::-webkit-scrollbar { display: none; }
+    .slide { flex: none; height: clamp(210px, 15.65vw, 400px); aspect-ratio: 3 / 2; margin: 0; scroll-snap-align: start; }
+    .slide.portrait { aspect-ratio: 2 / 3; }
+    .slide.square { aspect-ratio: 1; }
+    .slide button { display: block; width: 100%; height: 100%; border: 0; padding: 0; overflow: hidden; background: #fff; cursor: zoom-in; }
+    .slide img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; border: 0; }
+    .lightbox { width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: #fff; color: #222; overflow: auto; }
+    .lightbox::backdrop { background: #fff; }
+    .lightbox-inner { min-height: 100%; padding: 24px clamp(16px, 2vw, 32px); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .lightbox figure { margin: 0; width: fit-content; max-width: 100%; display: flex; flex-direction: column; align-items: center; }
+    .lightbox img { display: block; width: auto; max-width: min(100%, 1500px); max-height: calc(100dvh - 120px); object-fit: contain; }
+    .lightbox figcaption { align-self: center; width: var(--photo-width, 100%); max-width: 100%; margin-top: 22px; text-align: left; font-size: 13px; line-height: 1.5; color: #777; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .lightbox-close, .lightbox-nav { position: fixed; z-index: 3; border: 0; background: rgba(255,255,255,.88); color: #222; cursor: pointer; }
+    .lightbox-close { right: 14px; top: 12px; width: 44px; height: 44px; font-size: 30px; line-height: 1; }
+    .lightbox-nav { top: 50%; transform: translateY(-50%); font-size: 36px; width: 44px; height: 60px; }
+    .lightbox-nav:disabled { opacity: .25; cursor: default; } .lightbox-prev { left: 8px; } .lightbox-next { right: 8px; }
+    @media (max-width: 700px) { .lightbox-inner { padding: 65px 16px 25px; } .lightbox img { max-height: calc(100dvh - 170px); } .lightbox figcaption { margin-top: 16px; } }
+    .arrow { position: absolute; top: 50%; transform: translateY(-50%); z-index: 2; display: grid; place-items: center; width: 36px; height: 64px; padding: 0; border: 0; background: transparent; color: #fff; cursor: pointer; }
+    .arrow:hover { background: transparent; }
+    .arrow:disabled { visibility: hidden; pointer-events: none; }
+    .arrow svg { width: 17px; height: 30px; fill: none; stroke: currentColor; stroke-width: 2; filter: drop-shadow(0 1px 2px rgba(0,0,0,.65)); transition: transform .18s ease; }
+    .arrow:hover:not(:disabled) svg { transform: scale(1.12); }
+    .arrow, .lightbox-close, .lightbox-nav, .gallery { caret-color: transparent; user-select: none; -webkit-user-select: none; }
+    .arrow svg, .lightbox-nav, .lightbox-close { -webkit-tap-highlight-color: transparent; }
+    .lightbox-close, .lightbox-nav { transition: scale .18s ease; }
+    .lightbox-close:hover, .lightbox-nav:hover:not(:disabled) { scale: 1.12; }
+    .lightbox-nav:disabled { visibility: hidden; pointer-events: none; }
+    @media (prefers-reduced-motion: reduce) { .arrow svg, .lightbox-close, .lightbox-nav { transition: none; } }
+    .prev { left: clamp(16px, 1.3vw, 33px); } .next { right: clamp(16px, 1.3vw, 33px); }
+    .project-card img { transition: transform .2s ease, outline-color .2s ease; }
+    .project-card.selected img { outline: 1px solid #bdbdbd; outline-offset: 5px; transform: scale(1.045); }
+    @media (prefers-reduced-motion: reduce) { .project-card img { transition: none; } }
+    #profile-view { max-width: none; margin: 0; padding: 0; }
+    .profile-layout { max-width: 900px; margin: clamp(45px, 6vw, 90px) auto; padding: 0 20px; display: grid; grid-template-columns: minmax(240px, 360px) 1fr; gap: clamp(30px, 6vw, 90px); align-items: start; }
+    .profile-photo { display:block; width:100%; height:auto; object-fit:cover; }
+    .profile-layout h2 { margin:0 0 30px; font-size:25px; font-weight:400; }
+    @media (max-width:700px) { .profile-layout { grid-template-columns:1fr; gap:30px; } }
+    .intro-text, .page { max-width: 700px; margin: clamp(45px, 2.8vw, 72px) auto; padding: 0 20px; font-size: clamp(16px, .75vw, 19px); line-height: 1.52; }
+    .intro-text p, .page p { margin: 0 0 1em; white-space: pre-wrap; }
+    .page { min-height: 300px; } .page h2 { font-size: 25px; font-weight: 400; margin: 0 0 30px; }
+    .contact-links { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+    .contact-links a { text-decoration: none; border-bottom: 1px solid #aaa; }
+    .project-panel { background: #fff; width: min(1496px, calc(100% - 40px)); margin: 0 auto; padding: 46px clamp(24px, 5.5vw, 140px) 60px; text-align: center; }
+    .project-panel h2 { font-size: 17px; font-weight: 400; color: #444; margin: 0 0 50px; }
+    .project-panel.is-project h2 { max-width: 660px; margin: 0 auto 45px; text-align: left; }
+    body.text-page, body.project-page { background: #fff; }
+    .project-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: clamp(20px, 2.3vw, 60px); max-width: 1140px; margin: 0 auto; }
+    .project-card { display: block; text-decoration: none; min-width: 0; }
+    .project-card img { display: block; width: 100%; aspect-ratio: 1.5; object-fit: cover; }
+    .project-card:hover img { opacity: .85; }
+    .tag { margin: 16px 0 14px; color: #367575; font-size: 10px; letter-spacing: .12em; }
+    .project-name { margin: 0; font: 15px Georgia, serif; overflow-wrap: anywhere; }
+    .project-description { width: min(700px, 100%); margin: clamp(45px, 2.8vw, 72px) auto; padding: 0 20px; font-size: clamp(16px, .75vw, 19px); line-height: 1.52; text-align: left; }
+    .project-description h2 { font-size: 25px; font-weight: 400; margin: 0 0 30px; }
+    .project-description p { white-space: pre-wrap; margin: 0 0 1em; }
+    .back { display: inline-block; color: #666; font-size: 14px; margin: 24px 0 0; text-decoration: none; }
+    .empty { text-align: center; padding: 25px 20px; color: #666; line-height: 1.5; }
+    .local-tools { margin: 14px auto 0; text-align: center; font-size: 13px; color: #777; }
+    .local-tools button { border: 1px solid #aaa; background: transparent; color: #444; padding: 7px 12px; cursor: pointer; }
+    .broken-photo { width: 260px; height: 100%; border: 1px solid #c8c6c3; display: grid; place-items: center; padding: 18px; color: #666; background: #fff; text-align: center; font-size: 14px; line-height: 1.5; }
+    img { -webkit-user-drag: none; user-select: none; -webkit-touch-callout: none; }
+    footer { background: white; text-align: center; padding-top: 75px; }
+    .social { display: flex; gap: 20px; justify-content: center; }
+    .social a { display: inline-flex; width: 32px; height: 32px; }
+    .social svg { width: 100%; height: 100%; display: block; }
+    .copyright { color: #aaa; font-size: 14px; margin: 42px 0 45px; }
+    .black-strip { width: 100%; height: 42px; background: #000; }
+    @media (max-width: 700px) {
+      .header { padding-top: 40px; } .gallery-wrap { margin-top: 35px; }
+      .slide { height: clamp(220px, 55vw, 320px); }
+      .intro-text, .page { margin: 40px auto; }
+      .project-panel { width: calc(100% - 32px); padding: 35px 20px 45px; }
+      .project-panel h2 { margin-bottom: 30px; } .project-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 30px 20px; }
+      footer { padding-top: 55px; } .copyright { margin: 32px 0 35px; } .black-strip { height: 32px; }
+    }
+    @media (prefers-reduced-motion: reduce) { html, .gallery { scroll-behavior: auto; } }
+  </style>
+</head>
+<body>
+<div class="language-switch" role="group" aria-label="Язык / Language"><button type="button" data-lang="ru" aria-pressed="true">RU</button><span aria-hidden="true">/</span><button type="button" data-lang="en" aria-pressed="false">EN</button></div>
+<header class="header">
+  <a href="#home" class="brand" aria-label="Nata Nikitina — на главную"><h1>Nata Nikitina</h1></a>
+  <nav aria-label="Главное меню"><a href="#profile" data-page="profile">Profile</a><a href="#projects" data-page="projects">Projects</a><a href="#contacts" data-page="contacts">Contacts</a></nav>
+</header>
+<main>
+  <section id="portfolio-view">
+    <div class="gallery-wrap" id="gallery-wrap">
+      <button class="arrow prev" aria-label="Предыдущие фотографии" hidden><svg viewBox="0 0 17 30" aria-hidden="true"><path d="M13 2 L3 15 L13 28"/></svg></button>
+      <div class="gallery" tabindex="0" aria-label="Горизонтальная фотогалерея"></div>
+      <button class="arrow next" aria-label="Следующие фотографии"><svg viewBox="0 0 17 30" aria-hidden="true"><path d="M4 2 L14 15 L4 28"/></svg></button>
+    </div>
+    <p class="empty" id="empty" hidden>Пока нет фотографий. Добавьте их в папку проекта.</p>
+    <div class="intro-text" id="home-intro"></div>
+    <section class="project-description" id="project-description" hidden><h2 id="selected-title"></h2><div id="project-text"></div></section>
+    <div class="project-panel" id="projects-panel"><h2>Projects</h2><div class="project-grid" id="projects-list"></div><a class="back" href="#home" id="back-link" hidden>← На главную</a></div>
+  </section>
+  <section class="page" id="profile-view" hidden><div class="profile-layout"><img class="profile-photo" src="assets/profile-new.jpg" alt="Портрет Nata Nikitina"><div><h2>Profile</h2><div id="profile-content"></div></div></div></section>
+  <section class="page" id="contacts-view" hidden><h2>Contacts</h2><div class="contact-links"><a href="https://www.instagram.com/nata.nikitina/" target="_blank" rel="noopener noreferrer">Instagram — @nata.nikitina</a><a href="https://t.me/nata_nktn" target="_blank" rel="noopener noreferrer">Telegram — @nata_nktn</a><a href="https://vk.ru/id471155" target="_blank" rel="noopener noreferrer">ВКонтакте</a></div></section>
+</main>
+<footer>
+  <div class="social">
+    <a href="https://www.instagram.com/nata.nikitina/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="3" width="26" height="26" rx="7" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="16" cy="16" r="6.3" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="23.3" cy="8.7" r="1.6" fill="currentColor"/></svg></a>
+    <a href="https://t.me/nata_nktn" target="_blank" rel="noopener noreferrer" aria-label="Telegram"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="currentColor"/><path d="M7 15.7 24 9.2c.8-.3 1.5.2 1.2 1.4l-2.9 13.4c-.2 1-1 1.3-1.8.8l-4.4-3.3-2.1 2c-.2.2-.4.4-.8.4l.3-4.5 8.2-7.4c.4-.3-.1-.5-.5-.2l-10.1 6.4-4.3-1.3c-.9-.3-.9-.9.2-1.2Z" fill="#fff"/></svg></a>
+    <a href="https://vk.ru/id471155" target="_blank" rel="noopener noreferrer" aria-label="ВКонтакте"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="7" fill="currentColor"/><path d="M6.2 10.3h4.2c.2 5 2.4 7.1 4.1 7.5v-7.5h3.9v4.3c1.7-.2 3.5-2.1 4.1-4.3h3.9c-.5 2.8-2.5 4.8-3.9 5.6 1.4.7 3.6 2.5 4.4 5.8h-4.3c-.6-2.1-2.2-3.7-4.2-3.9v3.9h-.5c-7.4 0-11.5-5-11.7-11.4Z" fill="#fff"/></svg></a>
+  </div>
+  <p class="copyright">Nata Nikitina 2026</p>
+  <div class="local-tools" id="local-tools" hidden><button type="button" id="choose-projects">Выбрать папку projects для предпросмотра</button><input id="project-files" type="file" webkitdirectory multiple hidden><p id="local-status">Только для просмотра на компьютере. Выбери папку projects целиком.</p></div>
+  <div class="black-strip" aria-hidden="true"></div>
+</footer>
+<dialog class="lightbox" aria-label="Просмотр фотографии" aria-describedby="lightbox-caption">
+  <button class="lightbox-close" type="button" aria-label="Закрыть просмотр">×</button>
+  <button class="lightbox-nav lightbox-prev" type="button" aria-label="Предыдущая фотография" hidden>‹</button>
+  <div class="lightbox-inner"><figure><img class="lightbox-image" alt=""><figcaption id="lightbox-caption"></figcaption></figure></div>
+  <button class="lightbox-nav lightbox-next" type="button" aria-label="Следующая фотография">›</button>
+</dialog>
+<script src="site-data.js"></script>
+<script>
+  const data = window.SITE_DATA || {projects: [], profile: ''};
+  let lang = 'ru';
+  try { lang = localStorage.getItem('nata-lang') === 'en' ? 'en' : 'ru'; } catch (_) {}
+  const ui = {
+    ru: {profile: 'Профиль', projects: 'Проекты', contacts: 'Контакты', project: 'ФОТОПРОЕКТ', all: '← На главную', missing: 'Проект не найден', noPhotos: 'Пока нет фотографий. Добавьте их в папку проекта.', noProjects: 'Проекты появятся здесь после добавления фотографий.', broken: 'Файл не найден. Обновите site-data.js или выберите папку projects внизу страницы.', open: 'Открыть фотографию', photo: 'фотография', home: 'Главная', preview: 'Выбрать папку projects для предпросмотра'},
+    en: {profile: 'Profile', projects: 'Projects', contacts: 'Contacts', project: 'PHOTO PROJECT', all: '← Home', missing: 'Project not found', noPhotos: 'No photos yet. Add them to the project folder.', noProjects: 'Projects will appear here after you add photos.', broken: 'File not found. Rebuild site-data.js or select the projects folder below.', open: 'Open photo', photo: 'photo', home: 'Home', preview: 'Select the projects folder to preview'}
+  };
+  function tr(key) { return ui[lang][key]; }
+  function projectTitle(p) { return lang === 'en' ? (p.title_en || p.title || p.name) : (p.title || p.name); }
+  function projectDescriptionText(p) { return lang === 'en' ? (p?.description_en || p?.description || '') : (p?.description || ''); }
+  function photoCaption(p, path) { return (lang === 'en' ? p.captions_en?.[path] : p.captions?.[path]) || p.captions?.[path] || `${projectTitle(p)} · © Nata Nikitina`; }
+  function profileText() { return (lang === 'en' ? data.profile_en : data.profile) || data.profile || ''; }
+  function updateLanguage() {
+    document.documentElement.lang = lang;
+    document.title = lang === 'en' ? 'Nata Nikitina — photographer' : 'Nata Nikitina — фотограф';
+    document.querySelectorAll('.language-switch button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
+    document.querySelector('[data-page="profile"]').textContent = tr('profile');
+    document.querySelector('[data-page="projects"]').textContent = tr('projects');
+    document.querySelector('[data-page="contacts"]').textContent = tr('contacts');
+    document.querySelector('#projects-panel > h2').textContent = tr('projects');
+    document.querySelector('#profile-view h2').textContent = tr('profile');
+    document.querySelector('#contacts-view h2').textContent = tr('contacts');
+    document.querySelector('.contact-links a[href^="https://vk.ru/"]').textContent = lang === 'en' ? 'VK' : 'ВКонтакте';
+    document.querySelector('nav').setAttribute('aria-label', lang === 'en' ? 'Main menu' : 'Главное меню');
+    gallery.setAttribute('aria-label', lang === 'en' ? 'Photo gallery' : 'Горизонтальная фотогалерея');
+    document.getElementById('back-link').textContent = tr('all');
+    document.getElementById('empty').textContent = tr('noPhotos');
+    document.getElementById('choose-projects').textContent = tr('preview');
+    document.querySelector('.brand').setAttribute('aria-label', `Nata Nikitina — ${tr('home')}`);
+    document.querySelector('.prev').setAttribute('aria-label', lang === 'en' ? 'Previous photos' : 'Предыдущие фотографии');
+    document.querySelector('.next').setAttribute('aria-label', lang === 'en' ? 'Next photos' : 'Следующие фотографии');
+    document.querySelector('.lightbox-prev').setAttribute('aria-label', lang === 'en' ? 'Previous photo' : 'Предыдущая фотография');
+    document.querySelector('.lightbox-next').setAttribute('aria-label', lang === 'en' ? 'Next photo' : 'Следующая фотография');
+    document.querySelector('.lightbox-close').setAttribute('aria-label', lang === 'en' ? 'Close viewer' : 'Закрыть просмотр');
+    renderText(homeIntro, profileText()); renderText(profileContent, profileText());
+    if (lightbox.open && activeProject) {
+      const path = activeProject.images[activeIndex];
+      lightboxImage.alt = `${projectTitle(activeProject)} — ${tr('photo')} ${activeIndex + 1}`;
+      lightboxCaption.textContent = photoCaption(activeProject, path);
+    }
+  }
+  document.querySelectorAll('.language-switch button').forEach(button => button.addEventListener('click', () => {
+    if (lang === button.dataset.lang) return;
+    lang = button.dataset.lang;
+    try { localStorage.setItem('nata-lang', lang); } catch (_) {}
+    updateLanguage();
+    if (portfolioView.hidden) return;
+    const hash = location.hash.slice(1);
+    let chosen = null;
+    if (hash.startsWith('project/')) {
+      try { chosen = data.projects.find(p => p.name === decodeURIComponent(hash.slice(8))) || null; } catch (_) {}
+    }
+    title.textContent = chosen ? projectTitle(chosen) : tr('missing');
+    renderText(projectText, projectDescriptionText(chosen));
+    list.querySelectorAll('.project-card').forEach((card, index) => {
+      card.querySelector('.tag').textContent = tr('project');
+      card.querySelector('.project-name').textContent = projectTitle(data.projects[index]);
+    });
+    gallery.querySelectorAll('.slide button').forEach((button, index) => {
+      const project = chosen || {name: tr('home'), title: tr('home')};
+      button.setAttribute('aria-label', `${tr('open')} ${index + 1}: ${projectTitle(project)}`);
+    });
+  }));
+  const gallery = document.querySelector('#gallery-wrap .gallery'), previous = document.querySelector('.prev'), next = document.querySelector('.next');
+  const portfolioView = document.getElementById('portfolio-view'), profileView = document.getElementById('profile-view'), contactsView = document.getElementById('contacts-view');
+  const homeIntro = document.getElementById('home-intro'), profileContent = document.getElementById('profile-content');
+  const title = document.getElementById('selected-title'), projectDescription = document.getElementById('project-description'), projectText = document.getElementById('project-text'), list = document.getElementById('projects-list'), empty = document.getElementById('empty');
+  function renderText(el, text) { el.replaceChildren(); for (const part of text.split(/\n\s*\n/).filter(Boolean)) { const p = document.createElement('p'); p.textContent = part; el.append(p); } }
+  function pathUrl(path) { return path.startsWith('blob:') ? path : path.split('/').map(encodeURIComponent).join('/'); }
+  // Небольшое препятствие для случайного сохранения, не защита от копирования.
+  document.addEventListener('contextmenu', e => { if (e.target.closest('.slide, .project-card, .lightbox-image')) e.preventDefault(); });
+  document.addEventListener('dragstart', e => { if (e.target.matches('img')) e.preventDefault(); });
+  let localUrls = [];
+  if (location.protocol === 'file:') {
+    const input = document.getElementById('project-files'), status = document.getElementById('local-status');
+    document.getElementById('local-tools').hidden = false;
+    document.getElementById('choose-projects').addEventListener('click', () => input.click());
+    input.addEventListener('change', async () => {
+      const files = [...input.files]; if (!files.length) return;
+      const groups = new Map(), textFiles = new Map();
+      for (const f of files) {
+        const parts = f.webkitRelativePath.split('/');
+        if (parts.length !== 3 || parts[1].startsWith('.')) continue;
+        const name = parts[1], filename = parts[2];
+        if (/\.(jpg|jpeg|png|webp|gif|avif)$/i.test(filename)) {
+          if (!groups.has(name)) groups.set(name, []);
+          groups.get(name).push(f);
+        } else if (/\.txt$/i.test(filename)) textFiles.set(`${name}/${filename}`, f);
+      }
+      for (const url of localUrls) URL.revokeObjectURL(url); localUrls = [];
+      const projects = [];
+      for (const [name, images] of [...groups.entries()].sort((a,b) => a[0].localeCompare(b[0]))) {
+        images.sort((a,b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
+        const descriptionFile = textFiles.get(`${name}/description.txt`);
+        const titleFile = textFiles.get(`${name}/title.txt`);
+        const customTitle = titleFile ? (await titleFile.text()).trim().split(/\r?\n/)[0].trim() : '';
+        const titleEnFile = textFiles.get(`${name}/title.en.txt`);
+        const descriptionEnFile = textFiles.get(`${name}/description.en.txt`);
+        const project = {name, title: customTitle || name, title_en: titleEnFile ? (await titleEnFile.text()).trim().split(/\r?\n/)[0] : '', images: [], captions: {}, captions_en: {}, description: descriptionFile ? (await descriptionFile.text()).trim() : '', description_en: descriptionEnFile ? (await descriptionEnFile.text()).trim() : ''};
+        for (const file of images) {
+          const url = URL.createObjectURL(file); localUrls.push(url); project.images.push(url);
+          const captionFile = textFiles.get(`${name}/${file.name.replace(/\.[^.]+$/, '.txt')}`);
+          if (captionFile) project.captions[url] = (await captionFile.text()).trim();
+          const captionEnFile = textFiles.get(`${name}/${file.name.replace(/\.[^.]+$/, '.en.txt')}`);
+          if (captionEnFile) project.captions_en[url] = (await captionEnFile.text()).trim();
+        }
+        projects.push(project);
+      }
+      data.projects = projects;
+      status.textContent = projects.length ? `Загружено проектов: ${projects.length}. После обновления страницы выбери папку снова.` : 'В выбранной папке не найдены фотографии. Выбери именно папку projects, содержащую папки проектов.';
+      input.value = ''; location.hash = '#home'; route();
+    });
+  }
+  let galleryMovedRight = false;
+  function refreshArrows() {
+    const maxScroll = Math.max(0, gallery.scrollWidth - gallery.clientWidth);
+    // Браузер может чуть сдвинуть ленту при загрузке: это не должно открывать стрелку влево.
+    previous.disabled = previous.hidden = !galleryMovedRight || gallery.scrollLeft <= 2;
+    next.disabled = next.hidden = maxScroll <= 2 || gallery.scrollLeft >= maxScroll - 2;
+  }
+  function move(dir) {
+    if (dir > 0 && gallery.scrollWidth - gallery.clientWidth > 2) galleryMovedRight = true;
+    gallery.scrollBy({left: dir * Math.max(250, gallery.clientWidth * .75), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
+    requestAnimationFrame(refreshArrows);
+  }
+  previous.addEventListener('click', () => move(-1)); next.addEventListener('click', () => move(1)); gallery.addEventListener('scroll', refreshArrows, {passive:true}); window.addEventListener('resize', refreshArrows);
+  gallery.addEventListener('keydown', e => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); move(e.key === 'ArrowRight' ? 1 : -1); } });
+  const lightbox = document.querySelector('.lightbox'), lightboxImage = document.querySelector('.lightbox-image');
+  const lightboxCaption = document.getElementById('lightbox-caption'), lightboxPrev = document.querySelector('.lightbox-prev'), lightboxNext = document.querySelector('.lightbox-next');
+  let activeProject = null, activeIndex = 0, switchingPhoto = false, photoSession = 0;
+  function alignCaption() {
+    if (!lightbox.open || !lightboxImage.complete || !lightboxImage.naturalWidth) return;
+    const photo = lightboxImage.getBoundingClientRect();
+    const figure = lightboxImage.closest('figure').getBoundingClientRect();
+    lightboxCaption.style.width = `${photo.width}px`;
+    lightboxCaption.style.maxWidth = 'none';
+    lightboxCaption.style.alignSelf = 'flex-start';
+    lightboxCaption.style.marginLeft = `${photo.left - figure.left}px`;
+  }
+  lightboxImage.addEventListener('load', () => requestAnimationFrame(alignCaption));
+  window.addEventListener('resize', alignCaption);
+  function showPhoto(index) {
+    if (!activeProject || index < 0 || index >= activeProject.images.length) return;
+    activeIndex = index; const path = activeProject.images[index];
+    lightboxCaption.style.width = ''; lightboxCaption.style.marginLeft = ''; lightboxCaption.style.alignSelf = '';
+    lightboxImage.src = pathUrl(path);
+    lightboxImage.alt = `${projectTitle(activeProject)} — ${tr('photo')} ${index + 1}`;
+    if (lightboxImage.complete) requestAnimationFrame(alignCaption);
+    lightboxCaption.textContent = photoCaption(activeProject, path);
+    lightboxPrev.disabled = lightboxPrev.hidden = index === 0;
+    lightboxNext.disabled = lightboxNext.hidden = index === activeProject.images.length - 1;
+  }
+  function openPhoto(project, index) { photoSession++; activeProject = project; showPhoto(index); lightbox.showModal(); requestAnimationFrame(alignCaption); document.querySelector('.lightbox-close').focus(); }
+  document.querySelector('.lightbox-close').addEventListener('click', () => lightbox.close());
+  lightbox.addEventListener('close', () => { photoSession++; lightbox.querySelectorAll('.transition-photo').forEach(photo => photo.remove()); });
+  async function changePhoto(direction) {
+    const index = activeIndex + direction;
+    if (switchingPhoto || !lightbox.open || !activeProject || index < 0 || index >= activeProject.images.length) return;
+    switchingPhoto = true;
+    const session = photoSession;
+    const nextImage = new Image();
+    nextImage.src = pathUrl(activeProject.images[index]);
+    try {
+      await nextImage.decode();
+      if (session !== photoSession || !lightbox.open) return;
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches || !Element.prototype.animate) { showPhoto(index); return; }
+      const oldRect = lightboxImage.getBoundingClientRect();
+      const overlay = lightboxImage.cloneNode();
+      overlay.className = 'transition-photo';
+      Object.assign(overlay.style, { position: 'fixed', left: `${oldRect.left}px`, top: `${oldRect.top}px`, width: `${oldRect.width}px`, height: `${oldRect.height}px`, objectFit: 'contain', zIndex: '2', pointerEvents: 'none' });
+      lightbox.append(overlay);
+      showPhoto(index);
+      try {
+        await overlay.animate([
+          { opacity: 1, transform: 'translateX(0)' },
+          { opacity: 0, transform: `translateX(${-direction * 8}px)` }
+        ], { duration: 280, easing: 'ease-in-out' }).finished;
+      } finally { overlay.remove(); }
+    } catch (_) {
+      // Keep the current frame if the next photo cannot load.
+    } finally { switchingPhoto = false; }
+  }
+  lightboxPrev.addEventListener('click', () => changePhoto(-1));
+  lightboxNext.addEventListener('click', () => changePhoto(1));
+  lightbox.addEventListener('keydown', e => { if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); changePhoto(e.key === 'ArrowRight' ? 1 : -1); } });
+  function drawGallery(project) {
+    galleryMovedRight = false; previous.disabled = previous.hidden = true;
+    gallery.replaceChildren(); gallery.scrollLeft = 0;
+    for (const [index, path] of (project?.images || []).entries()) { const figure = document.createElement('figure'); figure.className = 'slide'; const button = document.createElement('button'); button.type = 'button'; button.setAttribute('aria-label', `Открыть фотографию ${index + 1}: ${projectTitle(project)}`); const img = document.createElement('img'); img.src = pathUrl(path); img.alt = ''; img.addEventListener('load', () => { const ratio = img.naturalWidth / img.naturalHeight; figure.classList.toggle('portrait', ratio < 0.9); figure.classList.toggle('square', ratio >= 0.9 && ratio <= 1.1); refreshArrows(); }); img.addEventListener('error', () => { button.disabled = true; const msg = document.createElement('div'); msg.className = 'broken-photo'; msg.textContent = tr('broken'); button.replaceChildren(msg); refreshArrows(); }); button.addEventListener('click', () => openPhoto(project, index)); button.append(img); figure.append(button); gallery.append(figure); }
+    empty.hidden = !!project?.images?.length; document.getElementById('gallery-wrap').hidden = !project?.images?.length; requestAnimationFrame(refreshArrows);
+  }
+  function drawProjects() {
+    list.replaceChildren();
+    for (const p of data.projects) { const a = document.createElement('a'); a.className = 'project-card'; a.href = '#project/' + encodeURIComponent(p.name); const img = document.createElement('img'); img.src = pathUrl(p.images[0]); img.alt = ''; const tag = document.createElement('p'); tag.className = 'tag'; tag.textContent = tr('project'); const name = document.createElement('p'); name.className = 'project-name'; name.textContent = projectTitle(p); if (location.hash === '#project/' + encodeURIComponent(p.name)) a.classList.add('selected'); a.append(img, tag, name); list.append(a); }
+    if (!data.projects.length) list.textContent = tr('noProjects');
+  }
+  function route() {
+    let hash = location.hash.slice(1) || 'home';
+    if (hash === 'projects' && data.projects.length) {
+      hash = 'project/' + encodeURIComponent(data.projects[0].name);
+      history.replaceState(null, '', '#' + hash);
+    }
+    const isProfile = hash === 'profile', isContacts = hash === 'contacts', isProjects = hash === 'projects';
+    const isProject = hash.startsWith('project/'); let chosen = null;
+    if (isProject) { try { const name = decodeURIComponent(hash.slice(8)); chosen = data.projects.find(p => p.name === name) || null; } catch (_) {} }
+    portfolioView.hidden = isProfile || isContacts; profileView.hidden = !isProfile; contactsView.hidden = !isContacts;
+    document.body.classList.toggle('text-page', isProfile || isContacts);
+    document.body.classList.toggle('project-page', isProject);
+    document.getElementById('projects-panel').classList.toggle('is-project', isProject);
+    document.querySelectorAll('nav a').forEach(a => { const active = a.dataset.page === (isProject ? 'projects' : hash); if (active) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+    if (!portfolioView.hidden) { drawGallery(isProject ? chosen : isProjects ? null : {name: tr('home'), title: tr('home'), images: data.start_feed?.images || [], captions: data.start_feed?.captions || {}, captions_en: data.start_feed?.captions_en || {}}); if (isProjects) empty.hidden = true; homeIntro.hidden = isProject || isProjects; projectDescription.hidden = !isProject; title.textContent = chosen ? projectTitle(chosen) : tr('missing'); renderText(projectText, projectDescriptionText(chosen)); document.getElementById('back-link').hidden = !isProject; drawProjects(); }
+    window.scrollTo({top: 0, behavior: 'auto'});
+  }
+  window.addEventListener('hashchange', route); updateLanguage(); route();
+</script>
+</body>
+</html>
