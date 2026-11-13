@@ -214,6 +214,22 @@
   const title = document.getElementById('selected-title'), projectDescription = document.getElementById('project-description'), projectText = document.getElementById('project-text'), list = document.getElementById('projects-list'), empty = document.getElementById('empty');
   function renderText(el, text) { el.replaceChildren(); for (const part of text.split(/\n\s*\n/).filter(Boolean)) { const p = document.createElement('p'); p.textContent = part; el.append(p); } }
   function pathUrl(path) { return path.startsWith('blob:') ? path : path.split('/').map(encodeURIComponent).join('/'); }
+  // Original photos remain in images[]; the same filename inside preview/ is only used in the gallery/cards.
+  function previewPath(path) {
+    if (path.startsWith('blob:')) return path;
+    const slash = path.lastIndexOf('/');
+    return slash < 0 ? path : `${path.slice(0, slash)}/preview/${path.slice(slash + 1)}`;
+  }
+  function setPreview(img, originalPath) {
+    const original = pathUrl(originalPath);
+    const preview = pathUrl(previewPath(originalPath));
+    let triedOriginal = preview === original;
+    img.onerror = () => {
+      if (!triedOriginal) { triedOriginal = true; img.src = original; }
+      else img.dispatchEvent(new Event('preview-failed'));
+    };
+    img.src = preview;
+  }
   // Небольшое препятствие для случайного сохранения, не защита от копирования.
   document.addEventListener('contextmenu', e => { if (e.target.closest('.slide, .project-card, .lightbox-image')) e.preventDefault(); });
   document.addEventListener('dragstart', e => { if (e.target.matches('img')) e.preventDefault(); });
@@ -295,14 +311,16 @@
     if (lightboxImage.complete) requestAnimationFrame(alignCaption);
     lightboxCaption.textContent = photoCaption(activeProject, path);
     lightboxPrev.disabled = lightboxPrev.hidden = index === 0;
-    lightboxNext.disabled = lightboxNext.hidden = index === activeProject.images.length - 1;
+    lightboxNext.disabled = lightboxNext.hidden = activeProject.images.length < 2;
   }
   function openPhoto(project, index) { photoSession++; activeProject = project; showPhoto(index); lightbox.showModal(); requestAnimationFrame(alignCaption); document.querySelector('.lightbox-close').focus(); }
   document.querySelector('.lightbox-close').addEventListener('click', () => lightbox.close());
   lightbox.addEventListener('close', () => { photoSession++; lightbox.querySelectorAll('.transition-photo').forEach(photo => photo.remove()); });
   async function changePhoto(direction) {
-    const index = activeIndex + direction;
-    if (switchingPhoto || !lightbox.open || !activeProject || index < 0 || index >= activeProject.images.length) return;
+    if (switchingPhoto || !lightbox.open || !activeProject || activeProject.images.length < 2) return;
+    // Forward loops to the first original; backward stays hidden on the first photo.
+    const index = direction > 0 ? (activeIndex + 1) % activeProject.images.length : activeIndex - 1;
+    if (index < 0) return;
     switchingPhoto = true;
     const session = photoSession;
     const nextImage = new Image();
@@ -333,12 +351,43 @@
   function drawGallery(project) {
     galleryMovedRight = false; previous.disabled = previous.hidden = true;
     gallery.replaceChildren(); gallery.scrollLeft = 0;
-    for (const [index, path] of (project?.images || []).entries()) { const figure = document.createElement('figure'); figure.className = 'slide'; const button = document.createElement('button'); button.type = 'button'; button.setAttribute('aria-label', `Открыть фотографию ${index + 1}: ${projectTitle(project)}`); const img = document.createElement('img'); img.src = pathUrl(path); img.alt = ''; img.addEventListener('load', () => { const ratio = img.naturalWidth / img.naturalHeight; figure.classList.toggle('portrait', ratio < 0.9); figure.classList.toggle('square', ratio >= 0.9 && ratio <= 1.1); refreshArrows(); }); img.addEventListener('error', () => { button.disabled = true; const msg = document.createElement('div'); msg.className = 'broken-photo'; msg.textContent = tr('broken'); button.replaceChildren(msg); refreshArrows(); }); button.addEventListener('click', () => openPhoto(project, index)); button.append(img); figure.append(button); gallery.append(figure); }
+    for (const [index, path] of (project?.images || []).entries()) {
+      const figure = document.createElement('figure'); figure.className = 'slide';
+      const button = document.createElement('button'); button.type = 'button';
+      button.setAttribute('aria-label', `${tr('open')} ${index + 1}: ${projectTitle(project)}`);
+      const img = document.createElement('img'); img.alt = '';
+      img.loading = index < 3 ? 'eager' : 'lazy';
+      img.decoding = 'async';
+      img.addEventListener('load', () => {
+        const ratio = img.naturalWidth / img.naturalHeight;
+        figure.classList.toggle('portrait', ratio < 0.9);
+        figure.classList.toggle('square', ratio >= 0.9 && ratio <= 1.1);
+        refreshArrows();
+      });
+      img.addEventListener('preview-failed', () => {
+        button.disabled = true;
+        const msg = document.createElement('div'); msg.className = 'broken-photo';
+        msg.textContent = tr('broken'); button.replaceChildren(msg); refreshArrows();
+      });
+      button.addEventListener('click', () => openPhoto(project, index));
+      button.append(img); figure.append(button); gallery.append(figure);
+      setPreview(img, path);
+    }
     empty.hidden = !!project?.images?.length; document.getElementById('gallery-wrap').hidden = !project?.images?.length; requestAnimationFrame(refreshArrows);
   }
   function drawProjects() {
     list.replaceChildren();
-    for (const p of data.projects) { const a = document.createElement('a'); a.className = 'project-card'; a.href = '#project/' + encodeURIComponent(p.name); const img = document.createElement('img'); img.src = pathUrl(p.images[0]); img.alt = ''; const tag = document.createElement('p'); tag.className = 'tag'; tag.textContent = tr('project'); const name = document.createElement('p'); name.className = 'project-name'; name.textContent = projectTitle(p); if (location.hash === '#project/' + encodeURIComponent(p.name)) a.classList.add('selected'); a.append(img, tag, name); list.append(a); }
+    for (const p of data.projects) {
+      const a = document.createElement('a'); a.className = 'project-card';
+      a.href = '#project/' + encodeURIComponent(p.name);
+      const img = document.createElement('img'); img.alt = '';
+      img.loading = 'lazy'; img.decoding = 'async';
+      const tag = document.createElement('p'); tag.className = 'tag'; tag.textContent = tr('project');
+      const name = document.createElement('p'); name.className = 'project-name'; name.textContent = projectTitle(p);
+      if (location.hash === a.getAttribute('href')) a.classList.add('selected');
+      a.append(img, tag, name); list.append(a);
+      setPreview(img, p.images[0]);
+    }
     if (!data.projects.length) list.textContent = tr('noProjects');
   }
   function route() {
