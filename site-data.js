@@ -139,8 +139,8 @@ window.SITE_DATA = {
       "description_en": ""
     }
   ],
-  "profile": "\u0412\u0440\u044f\u0434 \u043b\u0438 \u043c\u043e\u0433\u0443 \u043d\u0430\u0437\u0432\u0430\u0442\u044c \u0441\u0435\u0431\u044f \u0447\u0435\u043b\u043e\u0432\u0435\u043a\u043e\u043c, \u043f\u043e\u0441\u0442\u043e\u044f\u043d\u043d\u043e \u0438\u0449\u0443\u0449\u0438\u043c \u043a\u0430\u0434\u0440\u044b \u0432\u043e\u043a\u0440\u0443\u0433, \u2014 \u0434\u0430\u0436\u0435 \u043d\u0430\u043e\u0431\u043e\u0440\u043e\u0442. \u0411\u044b\u0432\u0430\u0435\u0442, \u044f \u043d\u0435 \u0432\u0441\u043f\u043e\u043c\u0438\u043d\u0430\u044e \u043f\u0440\u043e \u0444\u043e\u0442\u043e\u0430\u043f\u043f\u0430\u0440\u0430\u0442 \u043d\u0435\u0434\u0435\u043b\u044f\u043c\u0438, \u0430 \u0438\u043d\u043e\u0433\u0434\u0430 \u0447\u0443\u0432\u0441\u0442\u0432\u0443\u044e \u0441\u043e\u043a\u0440\u0443\u0448\u0438\u0442\u0435\u043b\u044c\u043d\u0443\u044e \u043d\u0435\u043e\u0431\u0445\u043e\u0434\u0438\u043c\u043e\u0441\u0442\u044c \u0441\u043d\u0438\u043c\u0430\u0442\u044c.\n\n\u041d\u0430\u0432\u0435\u0440\u043d\u043e\u0435, \u043f\u043e\u044d\u0442\u043e\u043c\u0443 \u0444\u043e\u0442\u043e\u0433\u0440\u0430\u0444\u0438\u044f \u0434\u043b\u044f \u043c\u0435\u043d\u044f \u2014 \u0432 \u043f\u0435\u0440\u0432\u0443\u044e \u043e\u0447\u0435\u0440\u0435\u0434\u044c \u043e\u0442\u0440\u0430\u0436\u0435\u043d\u0438\u0435 \u0432\u043d\u0443\u0442\u0440\u0435\u043d\u043d\u0435\u0433\u043e \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u044f. \u0420\u0430\u0437\u043d\u043e\u0433\u043e \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u044f. \u0421\u043f\u043e\u0441\u043e\u0431 \u0443\u0437\u043d\u0430\u0442\u044c \u0441\u0430\u043c\u0443 \u0441\u0435\u0431\u044f.",
-  "profile_en": "I can hardly call myself someone who is constantly looking for images around me \u2014 quite the opposite, in fact. Sometimes I don't think about my camera for weeks, while at other times I feel an overwhelming need to take photographs.\n\nPerhaps that is why, for me, photography is first and foremost a reflection of an inner state. Of many different states. A way of getting to know myself.",
+  "profile": "",
+  "profile_en": "",
   "start_feed": {
     "images": [
       "start-feed/01.jpg",
@@ -157,14 +157,18 @@ window.SITE_DATA = {
       "start-feed/12.jpg"
     ],
     "captions": {
-      "start-feed/01.jpg": "Almost flowers 2026. \u00a9 Nata Nikitina",
-      "start-feed/02.jpg": "Dark matter 2026. \u00a9 Nata Nikitina",
-      "start-feed/03.jpg": "Dark matter 2026. \u00a9 Nata Nikitina",
-      "start-feed/04.jpg": "Dark matter 2026. \u00a9 Nata Nikitina",
-      "start-feed/05.jpg": "Dark matter 2026. \u00a9 Nata Nikitina",
-      "start-feed/06.jpg": "Dark matter 2026. \u00a9 Nata Nikitina",
-      "start-feed/07.jpg": "Dark matter 2026. \u00a9 Nata Nikitina",
-      "start-feed/08.jpg": "Dark matter 2026. \u00a9 Nata Nikitina"
+      "start-feed/01.jpg": "Portrait 2026. \u00a9 Nata Nikitina",
+      "start-feed/02.jpg": "Portrait 2026. \u00a9 Nata Nikitina",
+      "start-feed/03.jpg": "Untitled 2026. \u00a9 Nata Nikitina",
+      "start-feed/04.jpg": "Untitled 2026. \u00a9 Nata Nikitina",
+      "start-feed/05.jpg": "Untitled 2026. \u00a9 Nata Nikitina",
+      "start-feed/06.jpg": "Swans 2026. \u00a9 Nata Nikitina",
+      "start-feed/07.jpg": "Untitled 2026. \u00a9 Nata Nikitina",
+      "start-feed/08.jpg": "Untitled 2026. \u00a9 Nata Nikitina",
+      "start-feed/09.jpg": "Untitled 2026. \u00a9 Nata Nikitina",
+      "start-feed/10.jpg": "Untitled 2026. \u00a9 Nata Nikitina",
+      "start-feed/11.jpg": "Untitled 2026. \u00a9 Nata Nikitina",
+      "start-feed/12.jpg": "Untitled 2026. \u00a9 Nata Nikitina"
     },
     "captions_en": {}
   }
