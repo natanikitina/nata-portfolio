@@ -107,17 +107,19 @@
     @media (prefers-reduced-motion: reduce) { html, .gallery { scroll-behavior: auto; } }
 
     @media (max-width: 700px) and (orientation: portrait) {
-      .lightbox { overflow: hidden; }
-      .lightbox-inner { height: 100dvh; min-height: 0; padding: 0; justify-content: center; }
-      .lightbox figure { position: relative; width: calc(100vw - 68px); height: min(calc(100dvh - 222px), 1100px); max-width: none; display: block; flex: none; }
-      .lightbox figure .lightbox-image { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; object-fit: contain; }
-      /* The landscape frame is rotated within the same portrait viewport. */
-      .lightbox figure.rotate-mobile .lightbox-image { inset: auto; left: 50%; top: 50%; width: min(calc(100dvh - 222px), 1100px); height: calc(100vw - 68px); transform: translate(-50%, -50%) rotate(90deg); }
-      .lightbox figcaption { position: fixed; top: 50%; left: 8px; width: 25px !important; max-width: 25px !important; margin: 0 !important; margin-left: 0 !important; align-self: auto !important; transform: translateY(-50%); writing-mode: vertical-rl; text-align: left; font-size: 12px; line-height: 1.25; max-height: min(75dvh, 700px); overflow: hidden; }
-      .lightbox-nav { left: 50%; right: auto; top: auto; width: 54px; height: 54px; padding: 0; border: 0; background: transparent; color: #222; font-size: 48px; line-height: 48px; transform: translateX(-50%) rotate(90deg); }
-      .lightbox-prev { top: max(14px, env(safe-area-inset-top)); }
-      .lightbox-next { bottom: max(32px, env(safe-area-inset-bottom)); }
-      .lightbox-close { top: auto; right: 14px; bottom: max(32px, env(safe-area-inset-bottom)); background: transparent; }
+      /* Caption gutter is on the left; photo and controls share one vertical axis. */
+      .lightbox { overflow: hidden; --mobile-photo-left: clamp(38px, 9.5vw, 62px); --mobile-photo-right: clamp(10px, 2.8vw, 18px); --mobile-nav-gap: 56px; }
+      .lightbox-inner { box-sizing: border-box; width: 100%; height: 100dvh; min-height: 0; padding: 0 var(--mobile-photo-right) 0 var(--mobile-photo-left); display: flex; align-items: center; justify-content: center; }
+      .lightbox figure { position: relative; box-sizing: border-box; flex: none; display: block; width: var(--mobile-photo-width, calc(100vw - 55px)); height: var(--mobile-photo-height, calc(100dvh - 220px)); min-height: 0; max-width: none; margin: 0; }
+      .lightbox figure .lightbox-image { position: absolute; display: block; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; object-fit: contain; transform: none; }
+      /* Rotating only the image keeps its displayed rectangle inside the figure. */
+      .lightbox figure.rotate-mobile .lightbox-image { inset: auto; left: 50%; top: 50%; width: var(--mobile-photo-height); height: var(--mobile-photo-width); transform: translate(-50%, -50%) rotate(90deg); }
+      .lightbox figcaption { box-sizing: border-box; position: absolute; top: 0; left: -30px; width: 23px !important; max-width: 23px !important; max-height: 100%; margin: 0 !important; margin-left: 0 !important; padding: 0; align-self: auto !important; writing-mode: vertical-rl; text-align: left; font-size: 12px; line-height: 1.3; overflow: auto; scrollbar-width: none; }
+      .lightbox figcaption::-webkit-scrollbar { display: none; }
+      .lightbox-nav { position: fixed; left: 50%; right: auto; bottom: auto; width: 54px; height: 54px; padding: 0; border: 0; background: transparent; color: #222; font-size: 48px; line-height: 1; transform: translate(-50%, -50%) rotate(90deg); }
+      .lightbox-prev { top: calc(50% - var(--mobile-half-photo-height, 27dvh) - var(--mobile-nav-gap)); }
+      .lightbox-next { top: var(--mobile-bottom-control-y); }
+      .lightbox-close { display: grid; place-items: center; top: var(--mobile-bottom-control-y); right: calc(var(--mobile-photo-right) + 17px); bottom: auto; background: transparent; line-height: 1; transform: translateY(-50%); }
     }
   </style>
 </head>
@@ -315,8 +317,30 @@
     lightboxCaption.style.alignSelf = 'flex-start';
     lightboxCaption.style.marginLeft = `${photo.left - figure.left}px`;
   }
-  lightboxImage.addEventListener('load', () => { lightboxImage.closest('figure').classList.toggle('rotate-mobile', lightboxImage.naturalWidth >= lightboxImage.naturalHeight); requestAnimationFrame(alignCaption); });
-  window.addEventListener('resize', alignCaption);
+  function updateMobilePhotoLayout() {
+    const figure = lightboxImage.closest('figure');
+    const w = lightboxImage.naturalWidth, h = lightboxImage.naturalHeight;
+    if (!w || !h) return;
+    figure.classList.toggle('rotate-mobile', w > h);
+    if (!matchMedia('(max-width: 700px) and (orientation: portrait)').matches || !lightbox.open) return;
+    const viewportWidth = lightbox.clientWidth, viewportHeight = lightbox.clientHeight;
+    const left = Math.min(62, Math.max(38, viewportWidth * .095));
+    const right = Math.min(18, Math.max(10, viewportWidth * .028));
+    const navGap = Math.min(66, Math.max(48, viewportHeight * .075));
+    const maxW = viewportWidth - left - right;
+    const maxH = Math.max(120, viewportHeight - 2 * (navGap + 40));
+    // After rotation, a landscape image has the reciprocal aspect ratio.
+    const ratio = w > h ? h / w : w / h;
+    const photoW = Math.min(maxW, maxH * ratio);
+    const photoH = photoW / ratio;
+    lightbox.style.setProperty('--mobile-photo-width', `${photoW}px`);
+    lightbox.style.setProperty('--mobile-photo-height', `${photoH}px`);
+    lightbox.style.setProperty('--mobile-half-photo-height', `${photoH / 2}px`);
+    lightbox.style.setProperty('--mobile-bottom-control-y', `${viewportHeight / 2 + photoH / 2 + navGap}px`);
+    lightbox.style.setProperty('--mobile-nav-gap', `${navGap}px`);
+  }
+  lightboxImage.addEventListener('load', () => { updateMobilePhotoLayout(); requestAnimationFrame(alignCaption); });
+  window.addEventListener('resize', () => { updateMobilePhotoLayout(); alignCaption(); });
   function showPhoto(index) {
     if (!activeProject || index < 0 || index >= activeProject.images.length) return;
     activeIndex = index; const path = activeProject.images[index];
@@ -324,12 +348,12 @@
     lightboxImage.closest('figure').classList.remove('rotate-mobile');
     lightboxImage.src = pathUrl(path);
     lightboxImage.alt = `${projectTitle(activeProject)} — ${tr('photo')} ${index + 1}`;
-    if (lightboxImage.complete) requestAnimationFrame(alignCaption);
+    if (lightboxImage.complete) requestAnimationFrame(() => { updateMobilePhotoLayout(); alignCaption(); });
     lightboxCaption.textContent = photoCaption(activeProject, path);
     lightboxPrev.disabled = lightboxPrev.hidden = index === 0;
     lightboxNext.disabled = lightboxNext.hidden = activeProject.images.length < 2;
   }
-  function openPhoto(project, index) { photoSession++; activeProject = project; showPhoto(index); lightbox.showModal(); requestAnimationFrame(alignCaption); document.querySelector('.lightbox-close').focus(); }
+  function openPhoto(project, index) { photoSession++; activeProject = project; showPhoto(index); lightbox.showModal(); requestAnimationFrame(() => { updateMobilePhotoLayout(); alignCaption(); }); document.querySelector('.lightbox-close').focus(); }
   document.querySelector('.lightbox-close').addEventListener('click', () => lightbox.close());
   lightbox.addEventListener('close', () => { photoSession++; lightbox.querySelectorAll('.transition-photo').forEach(photo => photo.remove()); });
   async function changePhoto(direction) {
