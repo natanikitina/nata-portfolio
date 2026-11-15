@@ -4,24 +4,25 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Nata Nikitina — фотограф</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500&display=swap" rel="stylesheet">
   <style>
+    /* Optional local typefaces. Missing files fall back to system fonts. */
+    @font-face { font-family: 'SiteName'; src: url('Fonts/name.ttf') format('truetype'); font-display: swap; }
+    @font-face { font-family: 'SiteMenu'; src: url('Fonts/menu.ttf') format('truetype'); font-display: swap; }
+    @font-face { font-family: 'SiteText'; src: url('Fonts/text.ttf') format('truetype'); font-display: swap; }
     :root { color-scheme: light; --paper: #fff; --ink: #171717; --muted: #656565; }
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
-    body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; background: var(--paper); color: var(--ink); font-family: Manrope, Arial, Helvetica, sans-serif; }
+    body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; background: var(--paper); color: var(--ink); font-family: SiteText, Arial, Helvetica, sans-serif; }
     a { color: inherit; } button { font: inherit; } [hidden] { display: none !important; }
     .language-switch { position: absolute; top: 23px; right: clamp(18px, 3vw, 42px); display: flex; align-items: center; gap: 6px; z-index: 4; font-size: 12px; letter-spacing: .08em; }
-    .language-switch button { padding: 5px 3px; border: 0; background: transparent; color: #888; cursor: pointer; }
+    .language-switch button { font-family: SiteMenu, Arial, sans-serif; padding: 5px 3px; border: 0; background: transparent; color: #888; cursor: pointer; }
     .language-switch button[aria-pressed="true"] { color: #171717; text-decoration: underline; text-underline-offset: 4px; }
     .header { width: min(700px, 100%); margin: 0 auto; padding: clamp(45px, 4vw, 100px) 20px 0; text-align: center; }
     .brand { display: block; width: fit-content; margin: 0 auto; text-decoration: none; }
     .avatar { display: none; }
-    h1 { margin: 0; font-family: Manrope, Arial, sans-serif; font-weight: 400; font-size: clamp(27px, 4vw, 42px); letter-spacing: 0; line-height: 1.1; }
+    h1 { margin: 0; font-family: SiteName, Arial, sans-serif; font-weight: 400; font-size: clamp(27px, 4vw, 42px); letter-spacing: 0; line-height: 1.1; }
     nav { display: flex; justify-content: center; gap: clamp(25px, 4vw, 40px); margin-top: 17px; flex-wrap: wrap; }
-    nav a { text-decoration: none; color: var(--muted); font-size: clamp(15px, .72vw, 18px); }
+    nav a { font-family: SiteMenu, Arial, sans-serif; text-decoration: none; color: var(--muted); font-size: clamp(15px, .72vw, 18px); }
     nav a:hover, nav a[aria-current="page"] { color: #111; }
     a:focus-visible, button:focus-visible, .gallery:focus-visible { outline: 2px solid #444; outline-offset: 4px; }
     main { flex: 1 0 auto; width: 100%; min-width: 0; }
@@ -104,6 +105,20 @@
       footer { padding-top: 55px; } .copyright { margin: 32px 0 35px; } .black-strip { height: 32px; }
     }
     @media (prefers-reduced-motion: reduce) { html, .gallery { scroll-behavior: auto; } }
+
+    @media (max-width: 700px) and (orientation: portrait) {
+      .lightbox { overflow: hidden; }
+      .lightbox-inner { height: 100dvh; min-height: 0; padding: 0; justify-content: center; }
+      .lightbox figure { position: relative; width: calc(100vw - 68px); height: min(calc(100dvh - 222px), 1100px); max-width: none; display: block; flex: none; }
+      .lightbox figure .lightbox-image { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; object-fit: contain; }
+      /* The landscape frame is rotated within the same portrait viewport. */
+      .lightbox figure.rotate-mobile .lightbox-image { inset: auto; left: 50%; top: 50%; width: min(calc(100dvh - 222px), 1100px); height: calc(100vw - 68px); transform: translate(-50%, -50%) rotate(90deg); }
+      .lightbox figcaption { position: fixed; top: 50%; left: 8px; width: 25px !important; max-width: 25px !important; margin: 0 !important; margin-left: 0 !important; align-self: auto !important; transform: translateY(-50%); writing-mode: vertical-rl; text-align: left; font-size: 12px; line-height: 1.25; max-height: min(75dvh, 700px); overflow: hidden; }
+      .lightbox-nav { left: 50%; right: auto; top: auto; width: 54px; height: 54px; padding: 0; border: 0; background: transparent; color: #222; font-size: 48px; line-height: 48px; transform: translateX(-50%) rotate(90deg); }
+      .lightbox-prev { top: max(14px, env(safe-area-inset-top)); }
+      .lightbox-next { bottom: max(32px, env(safe-area-inset-bottom)); }
+      .lightbox-close { top: auto; right: 14px; bottom: max(32px, env(safe-area-inset-bottom)); background: transparent; }
+    }
   </style>
 </head>
 <body>
@@ -243,7 +258,7 @@
       const groups = new Map(), textFiles = new Map();
       for (const f of files) {
         const parts = f.webkitRelativePath.split('/');
-        if (parts.length !== 3 || parts[1].startsWith('.')) continue;
+        if (parts.length !== 3 || parts[1].startsWith('.') || parts[1] === 'start-feed') continue;
         const name = parts[1], filename = parts[2];
         if (/\.(jpg|jpeg|png|webp|gif|avif)$/i.test(filename)) {
           if (!groups.has(name)) groups.set(name, []);
@@ -292,7 +307,7 @@
   const lightboxCaption = document.getElementById('lightbox-caption'), lightboxPrev = document.querySelector('.lightbox-prev'), lightboxNext = document.querySelector('.lightbox-next');
   let activeProject = null, activeIndex = 0, switchingPhoto = false, photoSession = 0;
   function alignCaption() {
-    if (!lightbox.open || !lightboxImage.complete || !lightboxImage.naturalWidth) return;
+    if (!lightbox.open || !lightboxImage.complete || !lightboxImage.naturalWidth || matchMedia('(max-width: 700px) and (orientation: portrait)').matches) return;
     const photo = lightboxImage.getBoundingClientRect();
     const figure = lightboxImage.closest('figure').getBoundingClientRect();
     lightboxCaption.style.width = `${photo.width}px`;
@@ -300,12 +315,13 @@
     lightboxCaption.style.alignSelf = 'flex-start';
     lightboxCaption.style.marginLeft = `${photo.left - figure.left}px`;
   }
-  lightboxImage.addEventListener('load', () => requestAnimationFrame(alignCaption));
+  lightboxImage.addEventListener('load', () => { lightboxImage.closest('figure').classList.toggle('rotate-mobile', lightboxImage.naturalWidth >= lightboxImage.naturalHeight); requestAnimationFrame(alignCaption); });
   window.addEventListener('resize', alignCaption);
   function showPhoto(index) {
     if (!activeProject || index < 0 || index >= activeProject.images.length) return;
     activeIndex = index; const path = activeProject.images[index];
     lightboxCaption.style.width = ''; lightboxCaption.style.marginLeft = ''; lightboxCaption.style.alignSelf = '';
+    lightboxImage.closest('figure').classList.remove('rotate-mobile');
     lightboxImage.src = pathUrl(path);
     lightboxImage.alt = `${projectTitle(activeProject)} — ${tr('photo')} ${index + 1}`;
     if (lightboxImage.complete) requestAnimationFrame(alignCaption);
@@ -328,7 +344,7 @@
     try {
       await nextImage.decode();
       if (session !== photoSession || !lightbox.open) return;
-      if (matchMedia('(prefers-reduced-motion: reduce)').matches || !Element.prototype.animate) { showPhoto(index); return; }
+      if (matchMedia('(prefers-reduced-motion: reduce), (max-width: 700px) and (orientation: portrait)').matches || !Element.prototype.animate) { showPhoto(index); return; }
       const oldRect = lightboxImage.getBoundingClientRect();
       const overlay = lightboxImage.cloneNode();
       overlay.className = 'transition-photo';
